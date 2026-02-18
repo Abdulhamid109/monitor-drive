@@ -1,58 +1,67 @@
 "use client";
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
+import axios, { AxiosError } from 'axios';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+
+interface Customer{
+    _id:string,
+    name:string,
+    phone:string,
+    days:string
+
+}
 
 const CustomersPage = () => {
-  const [customers, setCustomers] = useState([
-    { id: 1, name: 'John Doe', phone: '9876543210', enrollmentType: 'Basic', days: 30 },
-    { id: 2, name: 'Jane Smith', phone: '9876543211', enrollmentType: 'Premium', days: 60 },
-    { id: 3, name: 'Robert Johnson', phone: '9876543212', enrollmentType: 'Standard', days: 45 },
-    { id: 4, name: 'Emily Davis', phone: '9876543213', enrollmentType: 'Basic', days: 30 },
-    { id: 5, name: 'Michael Brown', phone: '9876543214', enrollmentType: 'Premium', days: 90 },
-  ]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [editFormData, setEditFormData] = useState({
     name: '',
     phone: '',
-    enrollmentType: '',
-    days: 0
+    days: ""
   });
 
-  const filteredCustomers = customers.filter(customer =>
-    customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.phone.includes(searchTerm) ||
-    customer.enrollmentType.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
-  const handleEditClick = (customer: any) => {
-    setEditingId(customer.id);
+  const handleEditClick = (customer: Customer) => {
+    console.log(customer._id)
+    setEditingId(customer._id);
     setEditFormData({
       name: customer.name,
       phone: customer.phone,
-      enrollmentType: customer.enrollmentType,
       days: customer.days
     });
   };
 
-  const handleEditFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setEditFormData({
-      ...editFormData,
-      [name]: name === 'days' ? parseInt(value) || 0 : value
-    });
-  };
+  const fetchCustomerData = async()=>{
+    try {
+        const response = await axios.get("/api/drivers");
+        if(response.status===200){
+            console.log(response.data.message || "Successfully fetched the data");
+            console.log("Drivers=>"+response.data.driver)
+            setCustomers(response.data.driver);
+            toast.success(response.data.message || "Successfully fetched the data");
 
-  const handleEditFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setCustomers(customers.map(customer =>
-      customer.id === editingId ? { ...customer, ...editFormData } : customer
-    ));
-    setEditingId(null);
-  };
+        }
+        
+    } catch (error) {
+        console.log("Error : "+error);
+        if(error instanceof AxiosError){
+            console.log("Error=>"+error.response?.data.error);
+            toast.error(error.response?.data.error);
+        }
+    }
+  }
+
+  useEffect(()=>{
+    fetchCustomerData();
+  },[])
+
+
+
 
   return (
     <>
@@ -81,144 +90,30 @@ const CustomersPage = () => {
           </div>
         </div>
 
-        <div className="mb-6">
-          <Link
-            href="/driver"
-            className="block w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm sm:text-base text-center transition-colors"
-          >
-            Add New Customer
-          </Link>
-        </div>
 
-        <div className="overflow-x-auto bg-white rounded-lg shadow">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th scope="col" className="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                <th scope="col" className="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">Phone</th>
-                <th scope="col" className="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                <th scope="col" className="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">Days</th>
-                <th scope="col" className="px-3 py-2 sm:px-6 sm:py-3 text-right text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredCustomers.map((customer) => (
-                <tr key={customer.id} className="hover:bg-gray-50">
-                  {editingId === customer.id ? (
-                    <>
-                      <td colSpan={4} className="p-3 sm:p-4">
-                        <form onSubmit={handleEditFormSubmit} className="space-y-3">
-                          {/* Name Field - Stacked on mobile */}
-                          <div>
-                            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Name</label>
-                            <input
-                              type="text"
-                              name="name"
-                              value={editFormData.name}
-                              onChange={handleEditFormChange}
-                              className="w-full px-2 py-1 sm:px-3 sm:py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              required
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Phone</label>
-                            <input
-                              type="text"
-                              name="phone"
-                              value={editFormData.phone}
-                              onChange={handleEditFormChange}
-                              className="w-full px-2 py-1 sm:px-3 sm:py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              required
-                            />
-                          </div>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Enrollment Type</label>
-                              <select
-                                name="enrollmentType"
-                                value={editFormData.enrollmentType}
-                                onChange={handleEditFormChange}
-                                className="w-full px-2 py-1 sm:px-3 sm:py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                required
-                              >
-                                <option value="Basic">Basic</option>
-                                <option value="Standard">Standard</option>
-                                <option value="Premium">Premium</option>
-                              </select>
-                            </div>
-
-                            <div>
-                              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Days</label>
-                              <input
-                                type="number"
-                                name="days"
-                                value={editFormData.days}
-                                onChange={handleEditFormChange}
-                                className="w-full px-2 py-1 sm:px-3 sm:py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                required
-                              />
-                            </div>
-                          </div>
-
-                          <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-2">
-                            <button
-                              type="button"
-                              onClick={() => setEditingId(null)}
-                              className="px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded-md"
-                            >
-                              Cancel
-                            </button>
-                            <button
-                              type="submit"
-                              className="px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-md"
-                            >
-                              Save
-                            </button>
-                          </div>
-                        </form>
-                      </td>
-                    </>
-                  ) : (
-                    <>
-                      <td className="px-3 py-2 sm:px-6 sm:py-4 whitespace-nowrap">
-                        <div className="text-sm sm:text-base font-medium text-gray-900">{customer.name}</div>
-                      </td>
-                      <td className="px-3 py-2 sm:px-6 sm:py-4 whitespace-nowrap">
-                        <div className="text-sm sm:text-base text-gray-500">{customer.phone}</div>
-                      </td>
-                      <td className="px-3 py-2 sm:px-6 sm:py-4 whitespace-nowrap">
-                        <div className="text-sm sm:text-base text-gray-500">{customer.enrollmentType}</div>
-                      </td>
-                      <td className="px-3 py-2 sm:px-6 sm:py-4 whitespace-nowrap">
-                        <div className="text-sm sm:text-base text-gray-500">{customer.days}</div>
-                      </td>
-                      <td className="px-3 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-3 justify-end">
-                          <button
-                            onClick={() => handleEditClick(customer)}
-                            className="text-blue-600 hover:text-blue-900 text-xs sm:text-sm"
-                          >
-                            Edit
-                          </button>
-                          <button className="text-red-600 hover:text-red-900 text-xs sm:text-sm">
-                            Delete
-                          </button>
-                        </div>
-                      </td>
-                    </>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {filteredCustomers.length === 0 && !editingId && (
+        <div className=" grid md:grid-cols-3 grid-cols-1 gap-5">
+          {
+            customers.map((cust:Customer)=>(
+                <div key={cust._id} className='backdrop-blur-xl shadow-2xl shadow-black/60 rounded-md p-2 font-thin bg-gradient-to-r from-pink-200 to-white hover:scale-102 hover:duration-300 hover:transition-all'>
+            <div className='p-2 '>Name : {cust.name}</div>
+            <div className='p-2'>Phone No : {cust.phone}</div>
+            <div className='flex justify-between items-center p-2'>
+                <span>Days Count : {cust.days}</span>
+                <Link  href={`/alldrivers/${cust._id}`} className='text-sm underline text-blue-600'>view</Link>
+            </div>
+            <div className='flex justify-between items-center p-2'>
+                <button className='bg-slate-500 p-1 rounded-md text-white'>Add attendance</button>
+                <button className='bg-blue-500 p-1 rounded-md text-white'>Edit Profile</button>
+            </div>
+          </div>
+            ))
+          }
+          
+          {/* {filteredCustomers.length === 0 && !editingId && (
             <div className="p-4 text-center text-gray-500">
               No customers found matching your search.
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>

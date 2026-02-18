@@ -9,6 +9,7 @@ connect();
 export async function GET(request:NextRequest){
     try {
         const aid = await getTokenData(request);
+        console.log("AID => "+aid);
         if(!aid){
             return NextResponse.json(
                 {error:"Unauthorized Admin"},
@@ -16,6 +17,7 @@ export async function GET(request:NextRequest){
             )
         }
         const drivers = await Driver.find({aid});
+        console.log(drivers);
         if(!drivers){
             return NextResponse.json(
                 {error:"No Response found!"},

@@ -15,6 +15,7 @@ const DriverSchema = new mongoose.Schema(
         enrollment_type:{
             type:String
         },
+        //increment it when at the time of adding the attendance
         days:{
             type:Number,
             default:0

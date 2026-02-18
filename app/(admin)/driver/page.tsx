@@ -1,8 +1,53 @@
+"use client"
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
+import axios, { AxiosError } from 'axios';
 import Link from 'next/link';
+import { useState } from 'react';
+import toast from 'react-hot-toast';
 
-export default function LoginPage() {
+
+interface Data{
+    name:string;
+    phone:string;
+    enrollment_type:string;
+    days:string;
+}
+export default function CustomerPage() {
+    const [data,setData] = useState<Data|null>({
+        name:"",
+        phone:"",
+        enrollment_type:"",
+        days:""
+    });
+
+    const [loading,setLoading] = useState<boolean>(false);
+    const [error,setError] = useState<string>("");
+    const onhandleSubmit = async(e:React.SubmitEvent)=>{
+        e.preventDefault();
+        setLoading(true);
+        try {
+            const response = await axios.post("/api/adddriver",data);
+            if(response.status===200){
+                console.log("Successfully uploaded the data");
+                toast.success(response.data.message || "successfully uploaded the data");
+                setData({
+                    name:"",
+                    enrollment_type:"",
+                    days:"",
+                    phone:""
+                });
+            }
+        } catch (error) {
+            console.log("err=>"+JSON.stringify(error));
+            if(error instanceof AxiosError){
+                console.log("a-err=>"+error);
+                toast.error(error.response?.data.error || "Something went wrong!!")
+            }
+        }finally{
+            setLoading(false);
+        }
+    }
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar/>
@@ -14,7 +59,7 @@ export default function LoginPage() {
               Driver Details
             </h2>
 
-            <form className="space-y-5">
+            <form className="space-y-5" onSubmit={onhandleSubmit}>
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                   Name
@@ -26,6 +71,8 @@ export default function LoginPage() {
                   required
                   className="w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter Driver Name"
+                  value={data?.name}
+                  onChange={(e)=>setData({...data!,name:e.target.value})}
                 />
               </div>
 
@@ -39,8 +86,17 @@ export default function LoginPage() {
                   name="phone"
                   required
                   className="w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={data?.phone}
+                  onChange={(e)=>{
+                    if(data?.phone.length!=10 || !data?.phone.startsWith("9") || !data?.phone.startsWith("8") || !data?.phone.startsWith("7")){
+                        setError("Invalid Phone no")
+                    }
+                    setData({...data!,phone:e.target.value})
+                    
+                  }}
                   placeholder="Enter Driver Phone no"
                 />
+                {<p className='hidden text-sm font-thin text-red-500'>error</p>}
               </div>
               <div>
                 <label htmlFor="enroll" className="block text-sm font-medium text-gray-700 mb-1">
@@ -50,6 +106,8 @@ export default function LoginPage() {
                   type="text"
                   id="enroll"
                   name="enroll"
+                  value={data?.enrollment_type}
+                  onChange={(e)=>setData({...data!,enrollment_type:e.target.value})}
                   required
                   className="w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter Enrollment type : eg:Car , eg:bike"
@@ -63,6 +121,8 @@ export default function LoginPage() {
                   type="text"
                   id="day"
                   name="day"
+                  value={data?.days}
+                  onChange={(e)=>setData({...data!,days:e.target.value})}
                   className="w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter the days (eg:Intial Day is considered as 0)"
                 />
@@ -72,7 +132,7 @@ export default function LoginPage() {
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md font-medium transition-colors duration-200"
               >
-                Add Detail
+                {loading?<>Adding...</>:<>Add Detail</>}
               </button>
             </form>
 

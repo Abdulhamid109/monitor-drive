@@ -1,4 +1,5 @@
 import { connect } from "@/config/dbconfig";
+import { getTokenData } from "@/helper/getTokenData";
 import Driver from "@/models/DriverModal";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -15,12 +16,21 @@ export async function POST(request:NextRequest){
                 {status:404}
             )
         }
+        const aid = await getTokenData(request);
+        if(!aid){
+            console.log("Unauthorized admin");
+            return NextResponse.json(
+                {error:"Unathorized user"},
+                {status:401}
+            )
+        }
 
         const newDriverRecord = new Driver({
+            aid,
             name,
             phone,
             enrollment_type,
-            days
+            days:parseInt(days)
         });
 
         const savedRecord = await newDriverRecord.save();
