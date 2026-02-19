@@ -31,7 +31,7 @@ const Navbar = () => {
 
   return (
     <nav className="w-full fixed top-0 flex justify-between items-center p-4 md:px-8 backdrop-blur-lg bg-white/30 shadow-lg z-50">
-      <Link href={"/"}>
+      <Link href={session?"/homepage":"/"}>
       <h1 className="md:text-2xl text-xl font-semibold text-gray-800">
         Monitor Drive
       </h1>

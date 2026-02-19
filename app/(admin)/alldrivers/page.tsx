@@ -1,7 +1,7 @@
 "use client";
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
-import axios, { AxiosError } from 'axios';
+import axios, { Axios, AxiosError } from 'axios';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -94,6 +94,26 @@ const CustomersPage = () => {
   }
 
 
+  const DeleteCustomer = async (cid: string) => {
+    try {
+      const response = await axios.delete(`/api/deletedriver?cid=${cid}`);
+      if (response.status === 200) {
+        toast.success(response.data.message || "Successfully deleted the user");
+        //this is the way by which we can delete the specific user from the list..
+        setCustomers(prevCustomers =>
+          prevCustomers.filter(customer => customer._id !== cid)
+        );
+      }
+    } catch (error) {
+      console.log("Error=>" + error);
+      if (error instanceof AxiosError) {
+        console.log("Err AX =>" + error.response?.data.error);
+        toast.error(error.response?.data.error || "Something went wrong")
+      }
+    }
+  }
+
+
 
   return (
     <>
@@ -175,7 +195,7 @@ const CustomersPage = () => {
                         <DialogContent>
                           <DialogHeader className='text-xl flex justify-center items-center '>Are you sure you want to delete?</DialogHeader>
                           <div className='p-2 flex justify-between items-center'>
-                            <button className='bg-red-500 p-2 rounded-md'>Delete</button>
+                            <button onClick={() => DeleteCustomer(cust._id)} className='bg-red-500 p-2 rounded-md'><DialogClose>Delete</DialogClose></button>
                             <button className='bg-green-500 p-2 rounded-md'><DialogClose>Cancel</DialogClose></button>
                           </div>
                         </DialogContent>

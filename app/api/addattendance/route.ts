@@ -53,7 +53,6 @@ export async function POST(request:NextRequest){
         console.log("Interm"+days);
         const updateCustomerDayCount = await Driver.findByIdAndUpdate(cid,{days:`${days}`});
         console.log(updateCustomerDayCount.days);
-        // also make sure for sundays it should be consider false 
 
         return NextResponse.json(
             {success:true,message:"Successfully marked the attendance",record:savedAttendanceRecord},
