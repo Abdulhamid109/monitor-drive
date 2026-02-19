@@ -46,13 +46,14 @@ export async function POST(request:NextRequest){
         const savedAttendanceRecord = await newAttendanceRecord.save();
 
         console.log("Record"+savedAttendanceRecord);
-        //increase the day count
+        //decrease the day count by one
         const driverdb = await Driver.findById(cid);
         console.log("Days ->"+driverdb.days);
-        const days = parseInt(driverdb.days)+1;
+        const days = parseInt(driverdb.days)-1;
         console.log("Interm"+days);
         const updateCustomerDayCount = await Driver.findByIdAndUpdate(cid,{days:`${days}`});
         console.log(updateCustomerDayCount.days);
+        // also make sure for sundays it should be consider false 
 
         return NextResponse.json(
             {success:true,message:"Successfully marked the attendance",record:savedAttendanceRecord},
