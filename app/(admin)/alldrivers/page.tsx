@@ -3,8 +3,19 @@ import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
 import axios, { AxiosError } from 'axios';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 interface Customer{
     _id:string,
@@ -25,6 +36,8 @@ const CustomersPage = () => {
     days: ""
   });
 
+  const now = new Date();
+  
 
   const handleEditClick = (customer: Customer) => {
     console.log(customer._id)
@@ -57,8 +70,36 @@ const CustomersPage = () => {
   }
 
   useEffect(()=>{
-    fetchCustomerData();
-  },[])
+    const displayData = async()=>{
+      await fetchCustomerData();
+    }
+    displayData();
+  },[]);
+
+  const AttendanceStatus = async(cid:string , status: boolean)=>{
+    try {
+      const response = await axios.post(`/api/addattendance?cid=${cid}`,status);
+      if(response.status===200){
+        console.log(response.data.record);
+        toast.success(response.data.message + "Kindly Refresh your page");
+      }
+
+    } catch (error) {
+      console.log("Failed to add the attendance record"+error);
+      if(error instanceof AxiosError){
+        console.log("Error=>"+error);
+        toast.error(error.response?.data.error)
+      }
+    }
+  }
+
+
+
+
+
+
+
+  
 
 
 
@@ -102,7 +143,32 @@ const CustomersPage = () => {
                 <Link  href={`/alldrivers/${cust._id}`} className='text-sm underline text-blue-600'>view</Link>
             </div>
             <div className='flex justify-between items-center p-2'>
-                <button className='bg-slate-500 p-1 rounded-md text-white'>Add attendance</button>
+                <Dialog>
+                  <DialogTrigger>
+                    <button className='bg-slate-500 p-1 rounded-md text-white'>
+                Add attendance
+                </button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogTitle>Mark Your Customer&apos;s Attendance</DialogTitle>
+                    <div>
+                      Today - {now.toLocaleDateString("en-IN")}
+                    </div>
+                    <div className='flex justify-between items-center p-2'>
+                      <button onClick={async(e)=>{
+                        e.preventDefault();
+    e.stopPropagation();
+                        await AttendanceStatus(cust._id,true)}
+                        } className='bg-green-500 rounded-md p-1'><DialogClose>Present</DialogClose></button>
+                      <button onClick={async(e)=>{
+                        e.preventDefault();
+    e.stopPropagation();
+                        await AttendanceStatus(cust._id,false)}
+                      }
+                       className='bg-red-500 rounded-md p-1'><DialogClose>Absent</DialogClose></button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
                 <button className='bg-blue-500 p-1 rounded-md text-white'>Edit Profile</button>
             </div>
           </div>
