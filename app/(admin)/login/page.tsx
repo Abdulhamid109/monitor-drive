@@ -93,7 +93,7 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <div className="mt-4 text-center">
+            {/* <div className="mt-4 text-center">
               <p className="text-gray-600 text-sm">
                 Don&apos;t have an account?{' '}
                 <Link
@@ -103,7 +103,7 @@ export default function LoginPage() {
                   Sign up
                 </Link>
               </p>
-            </div>
+            </div> */}
           </div>
         </div>
       </main>
