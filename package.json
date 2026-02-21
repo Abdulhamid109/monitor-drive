@@ -9,7 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@meinefinsternis/react-horizontal-date-picker": "^1.0.1",
     "axios": "^1.13.5",
     "bcrypt": "^6.0.0",
     "class-variance-authority": "^0.7.1",
@@ -21,13 +20,9 @@
     "next": "16.1.6",
     "radix-ui": "^1.4.3",
     "react": "19.2.3",
-    "react-calender-horizontal": "^1.0.12",
     "react-dom": "19.2.3",
     "react-horizontal-date": "^1.0.2",
-    "react-horizontal-datepicker": "^2.0.3",
-    "react-horizontal-strip-datepicker": "^3.0.2",
     "react-hot-toast": "^2.6.0",
-    "react-multi-date-picker": "^4.5.2",
     "tailwind-merge": "^3.4.1"
   },
   "devDependencies": {
