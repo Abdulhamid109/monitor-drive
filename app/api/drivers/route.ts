@@ -16,7 +16,7 @@ export async function GET(request:NextRequest){
                 {status:401}
             )
         }
-        const drivers = await Driver.find({aid});
+        const drivers = await Driver.find({aid}).sort({createdAt:-1});
         console.log(drivers);
         if(!drivers){
             return NextResponse.json(

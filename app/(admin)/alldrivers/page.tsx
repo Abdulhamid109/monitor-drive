@@ -53,7 +53,7 @@ const CustomersPage = () => {
 
   const AttendanceStatus = async (cid: string, status: boolean) => {
     try {
-      const response = await axios.post(`/api/addattendance?cid=${cid}`,status);
+      const response = await axios.post(`/api/addattendance?cid=${cid}`,{status});
       
       if (response.status === 200) {
         console.log(response.data.record);
