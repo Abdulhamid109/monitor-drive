@@ -25,7 +25,8 @@ const Page = () => {
       const response = await axios.get(`/api/getattendances?cid=${id}`);
       if (response.status === 200) {
         console.log(response.data.records);
-        setdata(response.data.records)
+        setdata(response.data.records);
+        
       }
     } catch (error) {
       console.log("Failed to perform the functionnality");
@@ -78,13 +79,16 @@ const Page = () => {
   }
 
 
-  const displayDay =(date:string)=>{
-    try {
-      
-    } catch (error) {
-      console.log("Failed to show the day"+error);
-    }
+const displayDay = (date: string) => {
+  try {
+    const [day, month, year] = date.split("/");
+    const parsed = new Date(`${year}-${month}-${day}`);
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    return days[parsed.getDay()];
+  } catch (error) {
+    console.log("Failed to show the day" + error);
   }
+}
 
 
   return (
@@ -108,34 +112,35 @@ const Page = () => {
             </section>
 
             <main className="w-full p-4">
-  <section className="flex overflow-x-auto gap-3 py-4 no-scrollbar w-full">
-    <div className='flex gap-3 mx-auto flex-shrink-0'>
-      {data.map((d: Data, index: number) => (
-      <div
-        onClick={() => {
-          setSelectedIndex(index);
-          fetchingStatus(d._id);
-          setAttId(d._id);
-        }}
-        key={d._id}
-        className={`flex-shrink-0 min-w-[110px] text-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 shadow-sm text-sm font-medium
+              <section className="flex overflow-x-auto gap-3 py-4 no-scrollbar w-full">
+                <div className='flex gap-3 mx-auto flex-shrink-0'>
+                  {data.map((d: Data, index: number) => (
+                    <div
+                      onClick={() => {
+                        setSelectedIndex(index);
+                        fetchingStatus(d._id);
+                        setAttId(d._id);
+                      }}
+                      key={d._id}
+                      className={`flex-shrink-0 min-w-[110px] text-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 shadow-sm text-sm font-medium
           ${selectedIndex === index
-            ? d.Status
-              ? "bg-green-600 text-white shadow-md scale-105"
-              : "bg-red-600 text-white shadow-md scale-105"
-            : "bg-white border border-gray-200 hover:bg-gray-100"
-          }
+                          ? d.Status
+                            ? "bg-green-600 text-white shadow-md scale-105"
+                            : "bg-red-600 text-white shadow-md scale-105"
+                          : "bg-white border border-gray-200 hover:bg-gray-100"
+                        }
         `}
-      >
-        {d.Date}
-      </div>
-    ))}
+                    >
+                      {d.Date}
+                      <p className="text-xs mt-1">{displayDay(d.Date)}</p>
+                    </div>
+                  ))}
 
 
 
-    </div>
-  </section>
-</main>
+                </div>
+              </section>
+            </main>
 
             <section className="flex justify-center items-center mt-12 px-4">
               <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6 border">
